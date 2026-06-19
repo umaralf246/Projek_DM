@@ -29,10 +29,10 @@ st.sidebar.write("Geser slider untuk mengubah nilai polutan:")
 # Menggunakan slider di sidebar agar lebih visual
 pm_sepuluh = st.sidebar.slider("PM10", 0.0, 200.0, 50.0)
 pm_duakomalima = st.sidebar.slider("PM2.5", 0.0, 200.0, 70.0)
-sulfur_dioksida = st.sidebar.slider("SO2 (Sulfur Dioksida)", 0.0, 150.0, 30.0)
-karbon_monoksida = st.sidebar.slider("CO (Karbon Monoksida)", 0.0, 100.0, 15.0)
-ozon = st.sidebar.slider("O3 (Ozon)", 0.0, 150.0, 20.0)
-nitrogen_dioksida = st.sidebar.slider("NO2 (Nitrogen Dioksida)", 0.0, 100.0, 25.0)
+sulfur_dioksida = st.sidebar.slider("SO2 (Sulfur Dioksida)", 0.0, 2000.0, 30.0)
+karbon_monoksida = st.sidebar.slider("CO (Karbon Monoksida)", 0.0, 200.0, 15.0)
+ozon = st.sidebar.slider("O3 (Ozon)", 0.0, 200.0, 20.0)
+nitrogen_dioksida = st.sidebar.slider("NO2 (Nitrogen Dioksida)", 0.0, 200.0, 25.0)
 
 # 4. Tampilan Dashboard Metrik di Halaman Utama
 st.subheader("📊 Nilai Polutan Saat Ini")
