@@ -33,19 +33,19 @@ st.title("🏙️ Dashboard Kualitas Udara (ISPU) DKI Jakarta")
 st.markdown("Pemantauan historis dan prediksi kualitas udara menggunakan Machine Learning.")
 st.divider()
 
-# Bikin 4 Tab Utama Sekarang
-tab1, tab2, tab3, tab4 = st.tabs([
+# Kembali jadi 3 Tab Utama
+tab1, tab2, tab3 = st.tabs([
     "📊 Dashboard Overview", 
     "📈 Analisis Tren Polutan", 
-    "🔍 Prediksi ISPU", 
-    "🧠 Interpretasi Model"
+    "🔍 Prediksi ISPU"
 ])
 
 # ==========================================
-# TAB 1: DASHBOARD OVERVIEW (ELEMEN 1 & 2)
+# TAB 1: DASHBOARD OVERVIEW
 # ==========================================
 with tab1:
     if data_tersedia:
+        # --- BAGIAN 1: KARTU RINGKASAN ---
         st.subheader("1. Kondisi Terkini per Stasiun")
         st.markdown("Ringkasan kualitas udara dari pencatatan data terakhir pada masing-masing stasiun.")
         
@@ -68,6 +68,7 @@ with tab1:
 
         st.divider()
 
+        # --- BAGIAN 2: BAR CHART DISTRIBUSI ---
         st.subheader("2. Distribusi Kategori Kualitas Udara per Stasiun")
         st.markdown("Total jumlah hari berdasarkan kategori ISPU selama seluruh periode pengamatan.")
         
@@ -96,12 +97,53 @@ with tab1:
         ax.bar_label(rects3, padding=3)
         
         st.pyplot(fig)
+        
+        st.divider()
+
+        # --- BAGIAN 3: FEATURE IMPORTANCE (PINDAHAN DARI TAB 4) ---
+        st.subheader("3. Faktor Penentu Keputusan Model (Feature Importance)")
+        st.markdown("Grafik ini menampilkan tingkat kepentingan atau kontribusi masing-masing polutan dalam pengambilan keputusan klasifikasi oleh model Machine Learning.")
+        
+        try:
+            importances = model.feature_importances_
+            feature_names = ['PM10', 'PM2.5', 'SO2', 'CO', 'O3', 'NO2']
+            
+            df_imp = pd.DataFrame({'Polutan': feature_names, 'Skor': importances})
+            df_imp = df_imp.sort_values(by='Skor', ascending=True)
+            
+            fig_imp, ax_imp = plt.subplots(figsize=(10, 5))
+            colors = ['#e74c3c' if val == df_imp['Skor'].max() else '#95a5a6' for val in df_imp['Skor']]
+            
+            bars = ax_imp.barh(df_imp['Polutan'], df_imp['Skor'], color=colors)
+            
+            ax_imp.set_xlabel('Skor Importance (0 - 1)')
+            ax_imp.set_xlim(0, df_imp['Skor'].max() + 0.15) 
+            
+            for bar in bars:
+                skor_aktual = bar.get_width()
+                ax_imp.text(
+                    skor_aktual + 0.01, 
+                    bar.get_y() + bar.get_height() / 2, 
+                    f"{skor_aktual:.4f}", 
+                    va='center', 
+                    fontweight='bold'
+                )
+                
+            ax_imp.spines['top'].set_visible(False)
+            ax_imp.spines['right'].set_visible(False)
+            
+            st.pyplot(fig_imp)
+            
+            st.info("💡 **Insight:** Berdasarkan arsitektur matematis model, terbukti bahwa **PM2.5** mendominasi keputusan klasifikasi kualitas udara secara signifikan (mendekati 91%). Itulah alasan mengapa PM2.5 selalu dipantau paling ketat sebagai parameter pencemar kritis.")
+            
+        except Exception as e:
+            st.error("Gagal memuat visualisasi Feature Importance. Pastikan model yang di-load adalah Decision Tree yang sah.")
 
     else:
         st.warning("Data CSV tidak ditemukan.")
 
 # ==========================================
-# TAB 2: TREN POLUTAN (ELEMEN 3)
+# TAB 2: TREN POLUTAN
 # ==========================================
 with tab2:
     if data_tersedia:
@@ -181,57 +223,3 @@ with tab3:
             st.warning("🟡 **Kategori: SEDANG**")
         else:
             st.error("🔴 **Kategori: TIDAK SEHAT**")
-
-# ==========================================
-# TAB 4: INTERPRETASI MODEL (FITUR BARU)
-# ==========================================
-with tab4:
-    st.subheader("Faktor Penentu Keputusan Model (Feature Importance)")
-    st.markdown("Grafik ini menampilkan tingkat kepentingan atau kontribusi masing-masing polutan dalam pengambilan keputusan klasifikasi. Semakin tinggi skornya, semakin besar dampaknya terhadap hasil prediksi.")
-    
-    try:
-        # 1. Ambil nilai importance langsung dari model
-        importances = model.feature_importances_
-        
-        # Urutan parameter sesuai dengan data input yang dilatih ke model
-        feature_names = ['PM10', 'PM2.5', 'SO2', 'CO', 'O3', 'NO2']
-        
-        # 2. Bikin dataframe dan urutkan secara ascending (biar yang paling besar ada di paling atas grafik)
-        df_imp = pd.DataFrame({'Polutan': feature_names, 'Skor': importances})
-        df_imp = df_imp.sort_values(by='Skor', ascending=True)
-        
-        # 3. Gambar Horizontal Bar Chart pakai Matplotlib
-        fig_imp, ax_imp = plt.subplots(figsize=(10, 5))
-        
-        # Bikin batang yang punya skor paling tinggi warnanya merah, sisanya abu-abu
-        colors = ['#e74c3c' if val == df_imp['Skor'].max() else '#95a5a6' for val in df_imp['Skor']]
-        
-        bars = ax_imp.barh(df_imp['Polutan'], df_imp['Skor'], color=colors)
-        
-        # 4. Modifikasi tampilan biar keren dan profesional
-        ax_imp.set_xlabel('Skor Importance (0 - 1)')
-        ax_imp.set_xlim(0, df_imp['Skor'].max() + 0.15) # Tambah spasi kanan biar teks angka gak nabrak ujung
-        
-        # Nampilin angka persis di ujung kanan setiap batang
-        for bar in bars:
-            skor_aktual = bar.get_width()
-            ax_imp.text(
-                skor_aktual + 0.01, 
-                bar.get_y() + bar.get_height() / 2, 
-                f"{skor_aktual:.4f}", # Nampilin 4 angka di belakang koma
-                va='center', 
-                fontweight='bold'
-            )
-            
-        # Ilangin border atas dan kanan biar keliatan clean
-        ax_imp.spines['top'].set_visible(False)
-        ax_imp.spines['right'].set_visible(False)
-        
-        # Render grafik di Streamlit
-        st.pyplot(fig_imp)
-        
-        # Tambahin kotak informasi di bawahnya
-        st.info("💡 **Insight:** Berdasarkan arsitektur matematis model, terbukti bahwa **PM2.5** mendominasi keputusan klasifikasi kualitas udara secara signifikan (mendekati 91%). Itulah alasan mengapa PM2.5 selalu dipantau paling ketat sebagai parameter pencemar kritis.")
-        
-    except Exception as e:
-        st.error("Gagal memuat visualisasi Feature Importance. Pastikan model yang di-load adalah Decision Tree yang sah.")
