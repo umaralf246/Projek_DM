@@ -219,17 +219,33 @@ with tab2:
 # ==========================================
 with tab3:
     st.subheader("Prediksi Kategori ISPU Berdasarkan Input")
-    st.markdown("Masukkan nilai polutan secara manual untuk memprediksi kategori udara.")
+    st.markdown("Geser *slider* untuk mengubah nilai polutan secara manual dan melihat prediksi kategori udaranya.")
     
+    # Kembalikan ke bentuk slider biar interaktif
     col_in1, col_in2 = st.columns(2)
     with col_in1:
-        pm_sepuluh = st.number_input("PM10", 0.0, value=50.0)
-        pm_duakomalima = st.number_input("PM2.5", 0.0, value=70.0)
-        sulfur_dioksida = st.number_input("SO2 (Sulfur Dioksida)", 0.0, value=30.0)
+        pm_sepuluh = st.slider("PM10", 0.0, 200.0, 50.0)
+        pm_duakomalima = st.slider("PM2.5", 0.0, 200.0, 70.0)
+        sulfur_dioksida = st.slider("SO2 (Sulfur Dioksida)", 0.0, 150.0, 30.0)
     with col_in2:
-        karbon_monoksida = st.number_input("CO (Karbon Monoksida)", 0.0, value=15.0)
-        ozon = st.number_input("O3 (Ozon)", 0.0, value=20.0)
-        nitrogen_dioksida = st.number_input("NO2 (Nitrogen Dioksida)", 0.0, value=25.0)
+        karbon_monoksida = st.slider("CO (Karbon Monoksida)", 0.0, 100.0, 15.0)
+        ozon = st.slider("O3 (Ozon)", 0.0, 150.0, 20.0)
+        nitrogen_dioksida = st.slider("NO2 (Nitrogen Dioksida)", 0.0, 100.0, 25.0)
+
+    st.divider()
+
+    # Kembalikan grafik batas aman 
+    st.subheader("📈 Grafik Perbandingan terhadap Batas Aman (ISPU = 50)")
+    st.markdown("Membandingkan nilai input saat ini dengan batas maksimal kategori udara 'BAIK'.")
+
+    data_grafik = pd.DataFrame({
+        'Nilai Input': [pm_sepuluh, pm_duakomalima, sulfur_dioksida, karbon_monoksida, ozon, nitrogen_dioksida],
+        'Batas Maksimal Sehat': [50.0, 50.0, 50.0, 50.0, 50.0, 50.0]
+    }, index=['PM10', 'PM2.5', 'SO2', 'CO', 'O3', 'NO2'])
+
+    st.bar_chart(data_grafik)
+
+    st.divider()
 
     if st.button("🔍 Prediksi Kualitas Udara", use_container_width=True):
         data_input = np.array([[pm_sepuluh, pm_duakomalima, sulfur_dioksida, karbon_monoksida, ozon, nitrogen_dioksida]])
@@ -237,10 +253,12 @@ with tab3:
         prediksi = model.predict(data_scaled)
         hasil_kategori = label_map[prediksi[0]]
         
-        st.subheader("💡 Hasil Prediksi")
+        st.subheader("💡 Hasil Analisis")
+        
+        # Kembalikan penjelasan lengkapnya
         if hasil_kategori == 'BAIK':
-            st.success("🟢 **Kategori: BAIK**")
+            st.success("🟢 **Kategori: BAIK** \n\nTingkat kualitas udara sangat baik, tidak memberikan efek negatif terhadap manusia ataupun hewan.")
         elif hasil_kategori == 'SEDANG':
-            st.warning("🟡 **Kategori: SEDANG**")
+            st.warning("🟡 **Kategori: SEDANG** \n\nTingkat kualitas udara masih dapat diterima, namun kelompok sensitif disarankan untuk mengurangi aktivitas berat di luar ruangan.")
         else:
-            st.error("🔴 **Kategori: TIDAK SEHAT**")
+            st.error("🔴 **Kategori: TIDAK SEHAT** \n\nTingkat kualitas udara bersifat merugikan pada manusia atau kelompok hewan yang sensitif. Segera gunakan masker jika harus keluar ruangan!")
