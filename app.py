@@ -40,14 +40,34 @@ tab1, tab2 = st.tabs(["📈 Tren Historis per Stasiun", "🔍 Prediksi Kualitas 
 with tab1:
     st.header("Tren Kualitas Udara Historis")
     
-    if data_tersedia:
-        # Pilihan filter stasiun (UBAH 'stasiun' SESUAI NAMA KOLOM STASIUN LU)
-        daftar_stasiun = df_historis['stasiun'].unique()
-        stasiun_terpilih = st.selectbox("Pilih Stasiun Pemantau:", daftar_stasiun)
+    if data_res_tersedia: # Pastikan variabel check file csv lu bener (data_tersedia)
+        # 1. Bikin 2 kolom berdampingan buat filter Stasiun dan Bulan biar rapi
+        col_filter1, col_filter2 = st.columns(2)
         
-        # Filter data berdasarkan stasiun terpilih
-        df_filter = df_historis[df_historis['stasiun'] == stasiun_terpilih]
+        with col_filter1:
+            daftar_stasiun = df_historis['stasiun'].unique()
+            stasiun_terpilih = st.selectbox("Pilih Stasiun Pemantau:", daftar_stasiun)
+            
+        with col_filter2:
+            # Ambil kode bulan unik dari csv (diurutkan dari bulan awal)
+            daftar_bulan = sorted(df_historis['bulan'].unique())
+            
+            # Jika isi CSV lu berupa angka '01', '02', kita bisa buat dictionary nama bulan (Opsional)
+            nama_bulan_map = {
+                "01": "Januari", "02": "Februari", "03": "Maret", 
+                "04": "April", "05": "Mei", "06": "Juni", 
+                "07": "Juli", "08": "Agustus", "09": "September", 
+                "10": "Oktober", "11": "November", "12": "Desember"
+            }
+            
+            # Bikin format tampilan yang rapi di dropdown selector
+            bulan_terpilih_kode = st.selectbox(
+                "Pilih Bulan Pemantauan:", 
+                daftar_bulan, 
+                format_func=lambda x: nama_bulan_map.get(str(x).zfill(2), f"Bulan {x}")
+            )
         
+        # 2. Pilihan parameter polutan (sama kayak sebelumnya)
         opsi_polutan = {
             'PM10': 'pm_sepuluh',
             'PM2.5': 'pm_duakomalima',
@@ -56,22 +76,32 @@ with tab1:
             'O3 (Ozon)': 'ozon',
             'NO2 (Nitrogen Dioksida)': 'nitrogen_dioksida'
         }
-        
-        # Bikin dropdown pakai nama cantik (keys)
         label_terpilih = st.selectbox("Pilih Parameter Polutan:", list(opsi_polutan.keys()))
-        
-        # Mengambil nama kolom asli sesuai pilihan (values)
         kolom_aktual = opsi_polutan[label_terpilih]
         
-        # FIX 1: Menampilkan grafik (Hapus set_index 'tanggal' biar garisnya gak zigzag)
-        st.line_chart(df_filter[kolom_aktual].reset_index(drop=True))
+        # 3. FILTER GANDA: Gabungkan filter stasiun DAN bulan
+        df_filter = df_historis[
+            (df_historis['stasiun'] == stasiun_terpilih) & 
+            (df_historis['bulan'] == bulan_terpilih_kode)
+        ]
         
-        # FIX 2: Menampilkan cuplikan data mentah (Ubah pilihan_polutan jadi kolom_aktual)
-        with st.expander("Lihat Data Tabel"):
-            st.dataframe(df_filter[['tanggal', 'stasiun', kolom_aktual]].tail(10))
+        # 4. Gambar grafik jika datanya tersedia
+        if not df_filter.empty:
+            st.line_chart(
+                df_filter[kolom_aktual].reset_index(drop=True),
+                x_label="Urutan Waktu Pemantauan (Hari ke-)",
+                y_label=f"Nilai Konsentrasi {label_terpilih}"
+            )
+            
+            # Menampilkan cuplikan data mentah sesuai filter
+            with st.expander("Lihat Data Tabel"):
+                st.dataframe(df_filter[['tanggal', 'stasiun', 'bulan', kolom_aktual]].reset_index(drop=True))
+        else:
+            st.warning(f"Data tidak ditemukan untuk kombinasi stasiun dan bulan yang dipilih.")
+            
     else:
         st.warning("File dataset (CSV) tidak ditemukan. Pastikan file CSV sudah di-upload ke GitHub.")
-
+        
 # ==========================================
 # TAB 2: PREDIKSI (Sama seperti sebelumnya)
 # ==========================================
