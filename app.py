@@ -90,10 +90,17 @@ with tab1:
         df_filter = df_filter_periode[df_filter_periode['stasiun'] == stasiun_terpilih]
         df_filter = df_filter.sort_values('tanggal').reset_index(drop=True)
         
+        # Bersihin data dari teks nyasar (kalau ada) dan tambal otomatis
+        df_filter[kolom_aktual] = pd.to_numeric(df_filter[kolom_aktual], errors='coerce')
+        df_filter[kolom_aktual] = df_filter[kolom_aktual].interpolate(method='linear')
+        
         # 5. GAMBAR GRAFIK
         if not df_filter.empty:
+            # Panggil dataframe utuhnya, lalu petakan X dan Y secara spesifik!
             st.line_chart(
-                df_filter[kolom_aktual],
+                df_filter,
+                x='tanggal',
+                y=kolom_aktual,
                 x_label="Tanggal Pemantauan",
                 y_label=f"Nilai Konsentrasi {label_terpilih}"
             )
