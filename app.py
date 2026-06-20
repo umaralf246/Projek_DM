@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn import tree
 import joblib
 
 st.set_page_config(page_title="Prediksi ISPU Jakarta", page_icon="🏙️", layout="wide")
@@ -32,7 +35,7 @@ st.markdown("Aplikasi untuk memantau tren historis dan memprediksi kualitas udar
 st.divider()
 
 # --- MEMBUAT TAB TAMPILAN ---
-tab1, tab2 = st.tabs(["📈 Tren Historis per Stasiun", "🔍 Prediksi Kualitas Udara"])
+tab1, tab2, tab3 = st.tabs(["📈 Tren Historis", "🔍 Prediksi ISPU", "📊 Performa Model"])
 
 # ==========================================
 # TAB 1: VISUALISASI HISTORIS
@@ -146,3 +149,75 @@ with tab2:
             st.warning("🟡 **Kategori: SEDANG**")
         else:
             st.error("🔴 **Kategori: TIDAK SEHAT**")
+
+# ==========================================
+# TAB 3: PERFORMA MODEL (EVALUASI)
+# ==========================================
+with tab3:
+    st.header("📊 Evaluasi Performa Model Decision Tree")
+    st.markdown("Berikut adalah hasil pengujian akurasi model Machine Learning yang digunakan pada aplikasi ini berdasarkan data *testing*.")
+    
+    st.divider()
+
+    # 1. Classification Report (Native DataFrame Streamlit)
+    st.subheader("1. Classification Report")
+    st.markdown("Tabel ini menunjukkan metrik evaluasi seperti *Precision*, *Recall*, dan *F1-Score*.")
+    
+    # Bikin tabel pakai Pandas biar rapi dan responsif
+    report_data = {
+        'Precision': ['1.00', '1.00', '0.99', '', '1.00', '1.00'],
+        'Recall': ['1.00', '1.00', '0.97', '', '0.99', '1.00'],
+        'F1-Score': ['1.00', '1.00', '0.98', '1.00', '0.99', '1.00'],
+        'Support': ['218', '2138', '395', '2751', '2751', '2751']
+    }
+    df_report = pd.DataFrame(report_data, index=['BAIK', 'SEDANG', 'TIDAK SEHAT', 'accuracy', 'macro avg', 'weighted avg'])
+    
+    # Nampilin dataframe di Streamlit
+    st.dataframe(df_report, use_container_width=True)
+
+    st.divider()
+
+    # 2. Confusion Matrix (Generate pakai Seaborn & Matplotlib)
+    st.subheader("2. Confusion Matrix")
+    st.markdown("Matriks ini memvisualisasikan perbandingan antara prediksi model dengan nilai aktual/sebenarnya.")
+    
+    # Bikin figure Matplotlib
+    fig_cm, ax_cm = plt.subplots(figsize=(6, 4))
+    
+    # Masukin angka array persis kayak hasil test lu
+    cm_array = np.array([[218, 0, 0],
+                         [0, 2138, 0],
+                         [0, 10, 385]])
+    
+    # Plot pakai Seaborn heatmap biar berwarna & interaktif
+    sns.heatmap(cm_array, annot=True, fmt='d', cmap='Blues',
+                xticklabels=['BAIK', 'SEDANG', 'TIDAK SEHAT'],
+                yticklabels=['BAIK', 'SEDANG', 'TIDAK SEHAT'], ax=ax_cm)
+    ax_cm.set_xlabel('Predicted Label')
+    ax_cm.set_ylabel('True Label')
+    
+    # Render figure Matplotlib di Streamlit
+    st.pyplot(fig_cm)
+
+    st.divider()
+
+    # 3. Visualisasi Pohon Keputusan (Generate langsung dari pkl)
+    st.subheader("3. Visualisasi Pohon Keputusan (Decision Tree)")
+    st.markdown("Diagram di bawah ini merupakan logika pengambilan keputusan algoritmik yang dipelajari oleh model secara *real-time*.")
+    
+    # Bikin canvas yang agak lebar biar teksnya gak numpuk
+    fig_tree, ax_tree = plt.subplots(figsize=(15, 8))
+    
+    # Generate tree langsung dari variabel 'model' yang udah di-load di atas
+    # max_depth dibatasi biar pohonnya gak terlalu raksasa & tetep bisa dibaca
+    tree.plot_tree(model, 
+                   feature_names=['PM10', 'PM2.5', 'SO2', 'CO', 'O3', 'NO2'],
+                   class_names=['BAIK', 'SEDANG', 'TIDAK SEHAT'],
+                   filled=True, 
+                   rounded=True, 
+                   fontsize=10,
+                   max_depth=3, 
+                   ax=ax_tree)
+                   
+    st.pyplot(fig_tree)
+
