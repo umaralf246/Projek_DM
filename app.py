@@ -78,7 +78,15 @@ with tab1:
                 df_dist[cat] = 0
         df_dist = df_dist[['BAIK', 'SEDANG', 'TIDAK SEHAT']]
         
+        # Set Matplotlib agar cocok dengan tema gelap/Streamlit
+        plt.style.use('dark_background')
+        
         fig, ax = plt.subplots(figsize=(12, 6))
+        
+        # Bikin background figure dan axes jadi transparan (menyatu dengan web)
+        fig.patch.set_alpha(0.0)
+        ax.patch.set_alpha(0.0)
+        
         x = np.arange(len(df_dist.index))
         width = 0.25
         
@@ -90,17 +98,24 @@ with tab1:
         ax.set_title('Perbandingan Kategori Udara Antar Stasiun')
         ax.set_xticks(x)
         ax.set_xticklabels(df_dist.index)
-        ax.legend()
         
-        ax.bar_label(rects1, padding=3)
-        ax.bar_label(rects2, padding=3)
-        ax.bar_label(rects3, padding=3)
+        # Bikin legend transparan
+        ax.legend(frameon=False)
+        
+        # Hilangkan garis border atas dan kanan biar lebih clean
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        
+        # Warna teks label bar
+        ax.bar_label(rects1, padding=3, color='white')
+        ax.bar_label(rects2, padding=3, color='white')
+        ax.bar_label(rects3, padding=3, color='white')
         
         st.pyplot(fig)
         
         st.divider()
 
-        # --- BAGIAN 3: FEATURE IMPORTANCE (PINDAHAN DARI TAB 4) ---
+        # --- BAGIAN 3: FEATURE IMPORTANCE ---
         st.subheader("3. Faktor Penentu Keputusan Model (Feature Importance)")
         st.markdown("Grafik ini menampilkan tingkat kepentingan atau kontribusi masing-masing polutan dalam pengambilan keputusan klasifikasi oleh model Machine Learning.")
         
@@ -112,7 +127,12 @@ with tab1:
             df_imp = df_imp.sort_values(by='Skor', ascending=True)
             
             fig_imp, ax_imp = plt.subplots(figsize=(10, 5))
-            colors = ['#e74c3c' if val == df_imp['Skor'].max() else '#95a5a6' for val in df_imp['Skor']]
+            
+            # Bikin background figure dan axes transparan
+            fig_imp.patch.set_alpha(0.0)
+            ax_imp.patch.set_alpha(0.0)
+            
+            colors = ['#e74c3c' if val == df_imp['Skor'].max() else '#5a6268' for val in df_imp['Skor']]
             
             bars = ax_imp.barh(df_imp['Polutan'], df_imp['Skor'], color=colors)
             
@@ -126,7 +146,8 @@ with tab1:
                     bar.get_y() + bar.get_height() / 2, 
                     f"{skor_aktual:.4f}", 
                     va='center', 
-                    fontweight='bold'
+                    fontweight='bold',
+                    color='white'
                 )
                 
             ax_imp.spines['top'].set_visible(False)
