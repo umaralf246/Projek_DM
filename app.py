@@ -34,9 +34,8 @@ st.markdown("Pemantauan historis dan prediksi kualitas udara menggunakan Machine
 st.divider()
 
 # Kembali jadi 3 Tab Utama
-tab1, tab2, tab3 = st.tabs([
-    "📊 Dashboard Overview", 
-    "📈 Analisis Tren Polutan", 
+tab1, tab2, = st.tabs([
+    "📊 Dashboard Overview",
     "🔍 Prediksi ISPU"
 ])
 
@@ -166,23 +165,22 @@ with tab1:
 # ==========================================
 # TAB 2: TREN POLUTAN
 # ==========================================
-with tab2:
-    if data_tersedia:
-        st.subheader("Tren Fluktuasi Polutan Harian")
+if data_tersedia:
+    st.subheader("Tren Fluktuasi Polutan Harian")
         
-        col_filter1, col_filter2, col_filter3 = st.columns(3)
+    col_filter1, col_filter2, col_filter3 = st.columns(3)
         
-        with col_filter1:
-            daftar_periode = sorted(df_historis['periode_data'].unique())
-            def format_periode(periode):
-                p_str = str(periode)
-                tahun, bulan = p_str[:4], p_str[4:]
-                map_bulan = {"01": "Januari", "02": "Februari", "03": "Maret", "04": "April", "05": "Mei", "06": "Juni", "07": "Juli", "08": "Agustus", "09": "September", "10": "Oktober", "11": "November", "12": "Desember"}
-                return f"{map_bulan.get(bulan, bulan)} {tahun}"
+    with col_filter1:
+        daftar_periode = sorted(df_historis['periode_data'].unique())
+        def format_periode(periode):
+            p_str = str(periode)
+            tahun, bulan = p_str[:4], p_str[4:]
+            map_bulan = {"01": "Januari", "02": "Februari", "03": "Maret", "04": "April", "05": "Mei", "06": "Juni", "07": "Juli", "08": "Agustus", "09": "September", "10": "Oktober", "11": "November", "12": "Desember"}
+            return f"{map_bulan.get(bulan, bulan)} {tahun}"
                 
-            periode_terpilih = st.selectbox("1. Pilih Periode:", daftar_periode, format_func=format_periode)
+        periode_terpilih = st.selectbox("1. Pilih Periode:", daftar_periode, format_func=format_periode)
         
-        df_filter_periode = df_historis[df_historis['periode_data'] == periode_terpilih]
+    df_filter_periode = df_historis[df_historis['periode_data'] == periode_terpilih]
         
         with col_filter2:
             daftar_stasiun = sorted(df_filter_periode['stasiun'].unique())
@@ -217,7 +215,7 @@ with tab2:
 # ==========================================
 # TAB 3: PREDIKSI ISPU
 # ==========================================
-with tab3:
+with tab2:
     st.subheader("Prediksi Kategori ISPU Berdasarkan Input")
     st.markdown("Ketikkan nilai konsentrasi polutan secara manual ke dalam kotak input di bawah ini untuk melihat prediksi kategori udaranya.")
     
