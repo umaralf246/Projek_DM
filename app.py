@@ -40,7 +40,7 @@ tab1, tab2 = st.tabs(["📈 Tren Historis per Stasiun", "🔍 Prediksi Kualitas 
 with tab1:
     st.header("Tren Kualitas Udara Historis")
     
-    if data_res_tersedia: # Pastikan variabel check file csv lu bener (data_tersedia)
+    if data_tersedia: # Pastikan variabel check file csv lu bener (data_tersedia)
         # 1. Bikin 2 kolom berdampingan buat filter Stasiun dan Bulan biar rapi
         col_filter1, col_filter2 = st.columns(2)
         
