@@ -63,12 +63,12 @@ with tab1:
         # Mengambil nama kolom asli sesuai pilihan (values)
         kolom_aktual = opsi_polutan[label_terpilih]
         
-        # Menampilkan grafik
-        st.line_chart(df_filter.set_index('tanggal')[kolom_aktual])
+        # FIX 1: Menampilkan grafik (Hapus set_index 'tanggal' biar garisnya gak zigzag)
+        st.line_chart(df_filter[kolom_aktual].reset_index(drop=True))
         
-        # Menampilkan cuplikan data mentah (opsional)
+        # FIX 2: Menampilkan cuplikan data mentah (Ubah pilihan_polutan jadi kolom_aktual)
         with st.expander("Lihat Data Tabel"):
-            st.dataframe(df_filter[['tanggal', 'stasiun', pilihan_polutan]].tail(10))
+            st.dataframe(df_filter[['tanggal', 'stasiun', kolom_aktual]].tail(10))
     else:
         st.warning("File dataset (CSV) tidak ditemukan. Pastikan file CSV sudah di-upload ke GitHub.")
 
