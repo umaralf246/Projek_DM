@@ -48,7 +48,22 @@ col6.metric(label="NO2", value=f"{nitrogen_dioksida}")
 
 st.divider()
 
-# 5. Tombol Eksekusi & Hasil Prediksi
+# 5. FITUR BARU: Visualisasi Grafik Batas Aman
+st.subheader("📈 Grafik Perbandingan terhadap Batas Aman Kategori BAIK (ISPU = 50)")
+st.markdown("Grafik di bawah membandingkan nilai input saat ini dengan batas maksimal kategori udara 'BAIK'.")
+
+# Membuat DataFrame khusus untuk memetakan grafik berdampingan
+data_grafik = pd.DataFrame({
+    'Nilai Input': [pm_sepuluh, pm_duakomalima, sulfur_dioksida, karbon_monoksida, ozon, nitrogen_dioksida],
+    'Batas Maksimal Sehat': [50.0, 50.0, 50.0, 50.0, 50.0, 50.0]
+}, index=['PM10', 'PM2.5', 'SO2', 'CO', 'O3', 'NO2'])
+
+# Menampilkan grafik batang interaktif
+st.bar_chart(data_grafik)
+
+st.divider()
+
+# 6. Tombol Eksekusi & Hasil Prediksi
 if st.button("🔍 Prediksi Kualitas Udara", use_container_width=True):
     # Proses standar
     data_input = np.array([[pm_sepuluh, pm_duakomalima, sulfur_dioksida, karbon_monoksida, ozon, nitrogen_dioksida]])
@@ -56,7 +71,7 @@ if st.button("🔍 Prediksi Kualitas Udara", use_container_width=True):
     prediksi = model.predict(data_scaled)
     hasil_kategori = label_map[prediksi[0]]
     
-    # 6. Tampilan Hasil dengan Indikator Warna
+    # Tampilan Hasil dengan Indikator Warna
     st.subheader("💡 Hasil Analisis")
     
     if hasil_kategori == 'BAIK':
