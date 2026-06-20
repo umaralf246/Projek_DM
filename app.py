@@ -256,7 +256,7 @@ with tab3:
     st.divider()
 
     # Tombol Prediksi dibikin mencolok (type="primary")
-    if st.button("🔍 Analisis & Prediksi Kualitas Udara", use_container_width=True, type="primary"):
+    if st.button("🔍 Analisis & Prediksi Kualitas Udara", use_container_width=True, type="primary", color="white"):
         data_input = np.array([[pm_sepuluh, pm_duakomalima, sulfur_dioksida, karbon_monoksida, ozon, nitrogen_dioksida]])
         data_scaled = scaler.transform(data_input)
         prediksi = model.predict(data_scaled)
