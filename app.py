@@ -219,22 +219,30 @@ with tab2:
 # ==========================================
 with tab3:
     st.subheader("Prediksi Kategori ISPU Berdasarkan Input")
-    st.markdown("Geser *slider* untuk mengubah nilai polutan secara manual dan melihat prediksi kategori udaranya.")
+    st.markdown("Ketikkan nilai konsentrasi polutan secara manual ke dalam kotak input di bawah ini untuk melihat prediksi kategori udaranya.")
     
-    # Kembalikan ke bentuk slider biar interaktif
-    col_in1, col_in2 = st.columns(2)
-    with col_in1:
-        pm_sepuluh = st.slider("PM10", 0.0, 250.0, 50.0)
-        pm_duakomalima = st.slider("PM2.5", 0.0, 250.0, 70.0)
-        sulfur_dioksida = st.slider("SO2 (Sulfur Dioksida)", 0.0, 250.0, 30.0)
-    with col_in2:
-        karbon_monoksida = st.slider("CO (Karbon Monoksida)", 0.0, 250.0, 15.0)
-        ozon = st.slider("O3 (Ozon)", 0.0, 250.0, 20.0)
-        nitrogen_dioksida = st.slider("NO2 (Nitrogen Dioksida)", 0.0, 250.0, 25.0)
+    # Bikin container bergaris biar rapi layaknya "form" beneran
+    with st.container(border=True):
+        st.markdown("**📝 Form Input Parameter Polutan**")
+        
+        # Bikin 3 kolom biar sejajar, padat, dan proporsional
+        col_in1, col_in2, col_in3 = st.columns(3)
+        
+        with col_in1:
+            pm_sepuluh = st.number_input("🌫️ PM10", min_value=0.0, value=50.0, step=1.0, help="Partikel udara berukuran lebih kecil dari 10 mikron.")
+            karbon_monoksida = st.number_input("🚗 CO", min_value=0.0, value=15.0, step=1.0, help="Gas beracun tanpa warna dan bau, biasanya dari knalpot kendaraan.")
+            
+        with col_in2:
+            pm_duakomalima = st.number_input("💨 PM2.5", min_value=0.0, value=70.0, step=1.0, help="Partikel udara sangat halus berukuran 2.5 mikron. (Paling berbahaya)")
+            ozon = st.number_input("☀️ O3 (Ozon)", min_value=0.0, value=20.0, step=1.0, help="Gas Ozon di permukaan tanah.")
+            
+        with col_in3:
+            sulfur_dioksida = st.number_input("🏭 SO2", min_value=0.0, value=30.0, step=1.0, help="Gas berbau menyengat, biasanya dari pembakaran batu bara/pabrik.")
+            nitrogen_dioksida = st.number_input("🏭 NO2", min_value=0.0, value=25.0, step=1.0, help="Gas polusi dari kendaraan dan pabrik yang bisa menyebabkan hujan asam.")
 
     st.divider()
 
-    # Kembalikan grafik batas aman 
+    # Grafik batas aman tetap ada dan otomatis menyesuaikan angka yang diketik
     st.subheader("📈 Grafik Perbandingan terhadap Batas Aman (ISPU = 50)")
     st.markdown("Membandingkan nilai input saat ini dengan batas maksimal kategori udara 'BAIK'.")
 
@@ -247,7 +255,8 @@ with tab3:
 
     st.divider()
 
-    if st.button("🔍 Prediksi Kualitas Udara", use_container_width=True):
+    # Tombol Prediksi dibikin mencolok (type="primary")
+    if st.button("🔍 Analisis & Prediksi Kualitas Udara", use_container_width=True, type="primary"):
         data_input = np.array([[pm_sepuluh, pm_duakomalima, sulfur_dioksida, karbon_monoksida, ozon, nitrogen_dioksida]])
         data_scaled = scaler.transform(data_input)
         prediksi = model.predict(data_scaled)
@@ -255,7 +264,7 @@ with tab3:
         
         st.subheader("💡 Hasil Analisis")
         
-        # Kembalikan penjelasan lengkapnya
+        # Penjelasan lengkap tetap ditampilkan
         if hasil_kategori == 'BAIK':
             st.success("🟢 **Kategori: BAIK** \n\nTingkat kualitas udara sangat baik, tidak memberikan efek negatif terhadap manusia ataupun hewan.")
         elif hasil_kategori == 'SEDANG':
