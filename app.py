@@ -46,7 +46,7 @@ with tab1:
     if data_tersedia:
         # --- BAGIAN 1: KARTU RINGKASAN ---
         st.subheader("1. Kondisi Terkini per Stasiun")
-        st.markdown("Ringkasan kualitas udara dari pencatatan data terakhir pada masing-masing stasiun.")
+        st.markdown("👉 **Petunjuk Petugas:** Pantau status kualitas udara terakhir di setiap stasiun. Kartu ini otomatis menampilkan data paling mutakhir untuk pengambilan keputusan cepat di lapangan.")
         
         df_terkini = df_historis.sort_values(['periode_data', 'tanggal']).groupby('stasiun').tail(1).reset_index()
         cols = st.columns(len(df_terkini))
@@ -69,7 +69,7 @@ with tab1:
 
         # --- BAGIAN 2: BAR CHART DISTRIBUSI ---
         st.subheader("2. Distribusi Kategori Kualitas Udara per Stasiun")
-        st.markdown("Total jumlah hari berdasarkan kategori ISPU selama seluruh periode pengamatan.")
+        st.markdown("👉 **Petunjuk Petugas:** Bandingkan seberapa sering suatu wilayah masuk dalam kategori aman atau berbahaya. Grafik ini membantu memetakan stasiun mana yang paling rawan polusi secara historis.")
         
         df_dist = df_historis.groupby(['stasiun', 'kategori']).size().unstack(fill_value=0)
         for cat in ['BAIK', 'SEDANG', 'TIDAK SEHAT']:
@@ -109,7 +109,7 @@ with tab1:
 
         # --- BAGIAN 3: FEATURE IMPORTANCE ---
         st.subheader("3. Faktor Penentu Keputusan Model (Feature Importance)")
-        st.markdown("Grafik ini menampilkan tingkat kepentingan atau kontribusi masing-masing polutan dalam pengambilan keputusan klasifikasi oleh model Machine Learning.")
+        st.markdown("👉 **Petunjuk Petugas:** Identifikasi polutan mana yang paling mendominasi penentuan status ISPU. Fokuskan mitigasi dan pemantauan pada polutan dengan skor tertinggi (berada di posisi teratas).")
         
         try:
             importances = model.feature_importances_
@@ -155,7 +155,7 @@ with tab1:
 
         # --- BAGIAN 4: TREN POLUTAN (PINDAHAN DARI TAB LAMA) ---
         st.subheader("4. Tren Fluktuasi Polutan Harian")
-        st.markdown("Pilih periode, stasiun, dan jenis polutan untuk melihat pergerakan nilainya dari hari ke hari.")
+        st.markdown("👉 **Petunjuk Petugas:** Lacak pola pergerakan polusi secara spesifik. Gunakan filter di bawah untuk mengidentifikasi apakah terdapat lonjakan polutan abnormal pada tanggal-tanggal tertentu.")
         
         col_filter1, col_filter2, col_filter3 = st.columns(3)
         
@@ -210,7 +210,7 @@ with tab1:
 # ==========================================
 with tab2:
     st.subheader("Prediksi Kategori ISPU Berdasarkan Input")
-    st.markdown("Ketikkan nilai konsentrasi polutan secara manual ke dalam kotak input di bawah ini untuk melihat prediksi kategori udaranya.")
+    st.markdown("👉 **Petunjuk Petugas:** Perhatikan batas visual ini sebelum melakukan prediksi. Batang grafik yang mendekati atau melewati angka 50 menandakan parameter tersebut butuh perhatian khusus.")
     
     with st.container(border=True):
         st.markdown("**📝 Form Input Parameter Polutan**")
