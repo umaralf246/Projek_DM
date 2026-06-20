@@ -48,12 +48,23 @@ with tab1:
         # Filter data berdasarkan stasiun terpilih
         df_filter = df_historis[df_historis['stasiun'] == stasiun_terpilih]
         
-        # Pilihan metrik polutan yang ingin dilihat trennya
-        pilihan_polutan = st.selectbox("Pilih Parameter Polutan:", ['pm10', 'pm25', 'so2', 'co', 'o3', 'no2'])
+        opsi_polutan = {
+            'PM10': 'pm_sepuluh',
+            'PM2.5': 'pm_duakomalima',
+            'SO2 (Sulfur Dioksida)': 'sulfur_dioksida',
+            'CO (Karbon Monoksida)': 'karbon_monoksida',
+            'O3 (Ozon)': 'ozon',
+            'NO2 (Nitrogen Dioksida)': 'nitrogen_dioksida'
+        }
         
-        # Menampilkan line chart
-        # Pastikan kolom 'tanggal' diset sebagai index agar sumbu X berupa waktu
-        st.line_chart(df_filter.set_index('tanggal')[pilihan_polutan])
+        # Bikin dropdown pakai nama cantik (keys)
+        label_terpilih = st.selectbox("Pilih Parameter Polutan:", list(opsi_polutan.keys()))
+        
+        # Mengambil nama kolom asli sesuai pilihan (values)
+        kolom_aktual = opsi_polutan[label_terpilih]
+        
+        # Menampilkan grafik
+        st.line_chart(df_filter.set_index('tanggal')[kolom_aktual])
         
         # Menampilkan cuplikan data mentah (opsional)
         with st.expander("Lihat Data Tabel"):
