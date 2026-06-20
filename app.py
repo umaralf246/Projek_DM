@@ -33,15 +33,14 @@ st.title("🏙️ Dashboard Kualitas Udara (ISPU) DKI Jakarta")
 st.markdown("Pemantauan historis dan prediksi kualitas udara menggunakan Machine Learning.")
 st.divider()
 
-# Kembali jadi 3 Tab Utama
-tab1, tab2, tab3 = st.tabs([
+# Sekarang cuma jadi 2 Tab Utama
+tab1, tab2 = st.tabs([
     "📊 Dashboard Overview", 
-    "📈 Analisis Tren Polutan", 
     "🔍 Prediksi ISPU"
 ])
 
 # ==========================================
-# TAB 1: DASHBOARD OVERVIEW
+# TAB 1: DASHBOARD OVERVIEW (SEMUA ANALISIS DIGABUNG DI SINI)
 # ==========================================
 with tab1:
     if data_tersedia:
@@ -78,12 +77,9 @@ with tab1:
                 df_dist[cat] = 0
         df_dist = df_dist[['BAIK', 'SEDANG', 'TIDAK SEHAT']]
         
-        # Set Matplotlib agar cocok dengan tema gelap/Streamlit
         plt.style.use('dark_background')
-        
         fig, ax = plt.subplots(figsize=(12, 6))
         
-        # Bikin background figure dan axes jadi transparan (menyatu dengan web)
         fig.patch.set_alpha(0.0)
         ax.patch.set_alpha(0.0)
         
@@ -99,14 +95,10 @@ with tab1:
         ax.set_xticks(x)
         ax.set_xticklabels(df_dist.index)
         
-        # Bikin legend transparan
         ax.legend(frameon=False)
-        
-        # Hilangkan garis border atas dan kanan biar lebih clean
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
         
-        # Warna teks label bar
         ax.bar_label(rects1, padding=3, color='white')
         ax.bar_label(rects2, padding=3, color='white')
         ax.bar_label(rects3, padding=3, color='white')
@@ -128,7 +120,6 @@ with tab1:
             
             fig_imp, ax_imp = plt.subplots(figsize=(10, 5))
             
-            # Bikin background figure dan axes transparan
             fig_imp.patch.set_alpha(0.0)
             ax_imp.patch.set_alpha(0.0)
             
@@ -158,17 +149,13 @@ with tab1:
             st.info("💡 **Insight:** Berdasarkan arsitektur matematis model, terbukti bahwa **PM2.5** mendominasi keputusan klasifikasi kualitas udara secara signifikan (mendekati 91%). Itulah alasan mengapa PM2.5 selalu dipantau paling ketat sebagai parameter pencemar kritis.")
             
         except Exception as e:
-            st.error("Gagal memuat visualisasi Feature Importance. Pastikan model yang di-load adalah Decision Tree yang sah.")
+            st.error("Gagal memuat visualisasi Feature Importance.")
 
-    else:
-        st.warning("Data CSV tidak ditemukan.")
+        st.divider()
 
-# ==========================================
-# TAB 2: TREN POLUTAN
-# ==========================================
-with tab2:
-    if data_tersedia:
-        st.subheader("Tren Fluktuasi Polutan Harian")
+        # --- BAGIAN 4: TREN POLUTAN (PINDAHAN DARI TAB LAMA) ---
+        st.subheader("4. Tren Fluktuasi Polutan Harian")
+        st.markdown("Pilih periode, stasiun, dan jenis polutan untuk melihat pergerakan nilainya dari hari ke hari.")
         
         col_filter1, col_filter2, col_filter3 = st.columns(3)
         
@@ -180,20 +167,20 @@ with tab2:
                 map_bulan = {"01": "Januari", "02": "Februari", "03": "Maret", "04": "April", "05": "Mei", "06": "Juni", "07": "Juli", "08": "Agustus", "09": "September", "10": "Oktober", "11": "November", "12": "Desember"}
                 return f"{map_bulan.get(bulan, bulan)} {tahun}"
                 
-            periode_terpilih = st.selectbox("1. Pilih Periode:", daftar_periode, format_func=format_periode)
+            periode_terpilih = st.selectbox("Pilih Periode:", daftar_periode, format_func=format_periode)
         
         df_filter_periode = df_historis[df_historis['periode_data'] == periode_terpilih]
         
         with col_filter2:
             daftar_stasiun = sorted(df_filter_periode['stasiun'].unique())
-            stasiun_terpilih = st.selectbox("2. Pilih Stasiun:", daftar_stasiun)
+            stasiun_terpilih = st.selectbox("Pilih Stasiun:", daftar_stasiun)
             
         with col_filter3:
             opsi_polutan = {
                 'PM2.5': 'pm_duakomalima', 'PM10': 'pm_sepuluh', 'SO2 (Sulfur Dioksida)': 'sulfur_dioksida',
                 'CO (Karbon Monoksida)': 'karbon_monoksida', 'O3 (Ozon)': 'ozon', 'NO2 (Nitrogen Dioksida)': 'nitrogen_dioksida'
             }
-            label_terpilih = st.selectbox("3. Pilih Parameter Polutan:", list(opsi_polutan.keys()))
+            label_terpilih = st.selectbox("Pilih Parameter Polutan:", list(opsi_polutan.keys()))
             kolom_aktual = opsi_polutan[label_terpilih]
 
         df_filter = df_filter_periode[df_filter_periode['stasiun'] == stasiun_terpilih]
@@ -214,18 +201,20 @@ with tab2:
         else:
             st.warning("Data tidak ditemukan.")
 
+    else:
+        st.warning("Data CSV tidak ditemukan.")
+
+
 # ==========================================
-# TAB 3: PREDIKSI ISPU
+# TAB 2: PREDIKSI ISPU (PINDAHAN DARI TAB 3 LAMA)
 # ==========================================
-with tab3:
+with tab2:
     st.subheader("Prediksi Kategori ISPU Berdasarkan Input")
     st.markdown("Ketikkan nilai konsentrasi polutan secara manual ke dalam kotak input di bawah ini untuk melihat prediksi kategori udaranya.")
     
-    # Bikin container bergaris biar rapi layaknya "form" beneran
     with st.container(border=True):
         st.markdown("**📝 Form Input Parameter Polutan**")
         
-        # Bikin 3 kolom biar sejajar, padat, dan proporsional
         col_in1, col_in2, col_in3 = st.columns(3)
         
         with col_in1:
@@ -242,7 +231,6 @@ with tab3:
 
     st.divider()
 
-    # Grafik batas aman tetap ada dan otomatis menyesuaikan angka yang diketik
     st.subheader("📈 Grafik Perbandingan terhadap Batas Aman (ISPU = 50)")
     st.markdown("Membandingkan nilai input saat ini dengan batas maksimal kategori udara 'BAIK'.")
 
@@ -255,22 +243,20 @@ with tab3:
 
     st.divider()
 
+    # Suntikan CSS buat ubah warna tombol
     st.markdown("""
     <style>
-    /* Mengubah warna dasar tombol primary */
     button[kind="primary"] {
-        background-color: #008CBA !important; /* Ganti kode HEX ini buat warna dasar */
+        background-color: #008CBA !important;
         color: white !important;
         border: none !important;
     }
-    
-    /* Mengubah warna saat kursor mouse diarahkan ke tombol (Hover) */
     button[kind="primary"]:hover {
-        background-color: #005f73 !important; /* Ganti kode HEX ini buat warna hover */
+        background-color: #005f73 !important;
     }
     </style>
     """, unsafe_allow_html=True)
-    # Tombol Prediksi dibikin mencolok (type="primary")
+
     if st.button("🔍 Analisis & Prediksi Kualitas Udara", use_container_width=True, type="primary"):
         data_input = np.array([[pm_sepuluh, pm_duakomalima, sulfur_dioksida, karbon_monoksida, ozon, nitrogen_dioksida]])
         data_scaled = scaler.transform(data_input)
@@ -279,7 +265,6 @@ with tab3:
         
         st.subheader("💡 Hasil Analisis")
         
-        # Penjelasan lengkap tetap ditampilkan
         if hasil_kategori == 'BAIK':
             st.success("🟢 **Kategori: BAIK** \n\nTingkat kualitas udara sangat baik, tidak memberikan efek negatif terhadap manusia ataupun hewan.")
         elif hasil_kategori == 'SEDANG':
