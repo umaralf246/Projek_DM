@@ -255,8 +255,23 @@ with tab3:
 
     st.divider()
 
+    st.markdown("""
+    <style>
+    /* Mengubah warna dasar tombol primary */
+    button[kind="primary"] {
+        background-color: #008CBA !important; /* Ganti kode HEX ini buat warna dasar */
+        color: white !important;
+        border: none !important;
+    }
+    
+    /* Mengubah warna saat kursor mouse diarahkan ke tombol (Hover) */
+    button[kind="primary"]:hover {
+        background-color: #005f73 !important; /* Ganti kode HEX ini buat warna hover */
+    }
+    </style>
+    """, unsafe_allow_html=True)
     # Tombol Prediksi dibikin mencolok (type="primary")
-    if st.button("🔍 Analisis & Prediksi Kualitas Udara", use_container_width=True, type="primary", color="white"):
+    if st.button("🔍 Analisis & Prediksi Kualitas Udara", use_container_width=True, type="primary"):
         data_input = np.array([[pm_sepuluh, pm_duakomalima, sulfur_dioksida, karbon_monoksida, ozon, nitrogen_dioksida]])
         data_scaled = scaler.transform(data_input)
         prediksi = model.predict(data_scaled)
