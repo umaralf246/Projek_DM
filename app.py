@@ -40,34 +40,41 @@ tab1, tab2 = st.tabs(["📈 Tren Historis per Stasiun", "🔍 Prediksi Kualitas 
 with tab1:
     st.header("Tren Kualitas Udara Historis")
     
-    if data_tersedia: # Pastikan variabel check file csv lu bener (data_tersedia)
-        # 1. Bikin 2 kolom berdampingan buat filter Stasiun dan Bulan biar rapi
+    if data_tersedia:
         col_filter1, col_filter2 = st.columns(2)
         
+        # 1. FILTER PERIODE (TAHUN & BULAN)
         with col_filter1:
-            daftar_stasiun = df_historis['stasiun'].unique()
-            stasiun_terpilih = st.selectbox("Pilih Stasiun Pemantau:", daftar_stasiun)
+            daftar_periode = sorted(df_historis['periode_data'].unique())
             
-        with col_filter2:
-            # Ambil kode bulan unik dari csv (diurutkan dari bulan awal)
-            daftar_bulan = sorted(df_historis['bulan'].unique())
-            
-            # Jika isi CSV lu berupa angka '01', '02', kita bisa buat dictionary nama bulan (Opsional)
-            nama_bulan_map = {
-                "01": "Januari", "02": "Februari", "03": "Maret", 
-                "04": "April", "05": "Mei", "06": "Juni", 
-                "07": "Juli", "08": "Agustus", "09": "September", 
-                "10": "Oktober", "11": "November", "12": "Desember"
-            }
-            
-            # Bikin format tampilan yang rapi di dropdown selector
-            bulan_terpilih_kode = st.selectbox(
-                "Pilih Bulan Pemantauan:", 
-                daftar_bulan, 
-                format_func=lambda x: nama_bulan_map.get(str(x).zfill(2), f"Bulan {x}")
+            # Fungsi buat ngubah "202402" jadi "Februari 2024" di UI
+            def format_periode(periode):
+                p_str = str(periode)
+                tahun = p_str[:4]
+                bulan = p_str[4:]
+                map_bulan = {
+                    "01": "Januari", "02": "Februari", "03": "Maret", 
+                    "04": "April", "05": "Mei", "06": "Juni", 
+                    "07": "Juli", "08": "Agustus", "09": "September", 
+                    "10": "Oktober", "11": "November", "12": "Desember"
+                }
+                return f"{map_bulan.get(bulan, bulan)} {tahun}"
+                
+            periode_terpilih = st.selectbox(
+                "Pilih Periode Pemantauan:", 
+                daftar_periode, 
+                format_func=format_periode
             )
         
-        # 2. Pilihan parameter polutan (sama kayak sebelumnya)
+        # Saring data berdasarkan periode
+        df_filter_periode = df_historis[df_historis['periode_data'] == periode_terpilih]
+        
+        # 2. FILTER STASIUN (Isinya otomatis menyesuaikan periode)
+        with col_filter2:
+            daftar_stasiun = sorted(df_filter_periode['stasiun'].unique())
+            stasiun_terpilih = st.selectbox("Pilih Stasiun Pemantau:", daftar_stasiun)
+        
+        # 3. FILTER PARAMETER
         opsi_polutan = {
             'PM10': 'pm_sepuluh',
             'PM2.5': 'pm_duakomalima',
@@ -79,25 +86,22 @@ with tab1:
         label_terpilih = st.selectbox("Pilih Parameter Polutan:", list(opsi_polutan.keys()))
         kolom_aktual = opsi_polutan[label_terpilih]
         
-        # 3. FILTER GANDA: Gabungkan filter stasiun DAN bulan
-        df_filter = df_historis[
-            (df_historis['stasiun'] == stasiun_terpilih) & 
-            (df_historis['bulan'] == bulan_terpilih_kode)
-        ]
+        # 4. FILTER FINAL & URUTKAN TANGGAL
+        df_filter = df_filter_periode[df_filter_periode['stasiun'] == stasiun_terpilih]
+        df_filter = df_filter.sort_values('tanggal').reset_index(drop=True)
         
-        # 4. Gambar grafik jika datanya tersedia
+        # 5. GAMBAR GRAFIK
         if not df_filter.empty:
             st.line_chart(
-                df_filter[kolom_aktual].reset_index(drop=True),
-                x_label="Urutan Waktu Pemantauan (Hari ke-)",
+                df_filter[kolom_aktual],
+                x_label="Tanggal Pemantauan",
                 y_label=f"Nilai Konsentrasi {label_terpilih}"
             )
             
-            # Menampilkan cuplikan data mentah sesuai filter
             with st.expander("Lihat Data Tabel"):
-                st.dataframe(df_filter[['tanggal', 'stasiun', 'bulan', kolom_aktual]].reset_index(drop=True))
+                st.dataframe(df_filter[['tanggal', 'stasiun', 'periode_data', kolom_aktual]])
         else:
-            st.warning(f"Data tidak ditemukan untuk kombinasi stasiun dan bulan yang dipilih.")
+            st.warning("Data tidak ditemukan untuk kombinasi ini.")
             
     else:
         st.warning("File dataset (CSV) tidak ditemukan. Pastikan file CSV sudah di-upload ke GitHub.")
