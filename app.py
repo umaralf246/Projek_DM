@@ -224,13 +224,13 @@ with tab3:
     # Kembalikan ke bentuk slider biar interaktif
     col_in1, col_in2 = st.columns(2)
     with col_in1:
-        pm_sepuluh = st.slider("PM10", 0.0, 200.0, 50.0)
-        pm_duakomalima = st.slider("PM2.5", 0.0, 200.0, 70.0)
-        sulfur_dioksida = st.slider("SO2 (Sulfur Dioksida)", 0.0, 150.0, 30.0)
+        pm_sepuluh = st.slider("PM10", 0.0, 250.0, 50.0)
+        pm_duakomalima = st.slider("PM2.5", 0.0, 250.0, 70.0)
+        sulfur_dioksida = st.slider("SO2 (Sulfur Dioksida)", 0.0, 250.0, 30.0)
     with col_in2:
-        karbon_monoksida = st.slider("CO (Karbon Monoksida)", 0.0, 100.0, 15.0)
-        ozon = st.slider("O3 (Ozon)", 0.0, 150.0, 20.0)
-        nitrogen_dioksida = st.slider("NO2 (Nitrogen Dioksida)", 0.0, 100.0, 25.0)
+        karbon_monoksida = st.slider("CO (Karbon Monoksida)", 0.0, 250.0, 15.0)
+        ozon = st.slider("O3 (Ozon)", 0.0, 250.0, 20.0)
+        nitrogen_dioksida = st.slider("NO2 (Nitrogen Dioksida)", 0.0, 250.0, 25.0)
 
     st.divider()
 
