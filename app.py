@@ -239,7 +239,29 @@ with tab2:
         'Batas Maksimal Sehat': [50.0, 50.0, 50.0, 50.0, 50.0, 50.0]
     }, index=['PM10', 'PM2.5', 'SO2', 'CO', 'O3', 'NO2'])
 
-    st.bar_chart(data_grafik['Nilai Input'], color="#008CBA")
+    # Pakai Matplotlib biar bisa kita paksa lurus horizontal
+    plt.style.use('dark_background')
+    fig_batas, ax_batas = plt.subplots(figsize=(10, 4))
+    
+    # Bikin background transparan biar nyatu sama UI
+    fig_batas.patch.set_alpha(0.0)
+    ax_batas.patch.set_alpha(0.0)
+    
+    # Gambar batang nilainya
+    bars_batas = ax_batas.bar(data_grafik.index, data_grafik['Nilai Input'], color="#008CBA", width=0.4)
+    
+    # NAH INI KUNCI UTAMANYA: Paksa rotasi = 0 (Horizontal)
+    ax_batas.set_xticklabels(data_grafik.index, rotation=0, fontsize=10)
+    
+    # Tambahin angka di atas batang biar petugas gak bingung baca nilai pastinya
+    ax_batas.bar_label(bars_batas, padding=3, color='white')
+    
+    # Bersihin border atas & kanan
+    ax_batas.spines['top'].set_visible(False)
+    ax_batas.spines['right'].set_visible(False)
+    
+    # Render ke Streamlit
+    st.pyplot(fig_batas)
 
     st.divider()
 
