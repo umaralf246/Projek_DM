@@ -123,9 +123,7 @@ with tab1:
             fig_imp.patch.set_alpha(0.0)
             ax_imp.patch.set_alpha(0.0)
             
-            colors = ['#e74c3c' if val == df_imp['Skor'].max() else '#5a6268' for val in df_imp['Skor']]
-            
-            bars = ax_imp.barh(df_imp['Polutan'], df_imp['Skor'], color=colors)
+            bars = ax_imp.barh(df_imp['Polutan'], df_imp['Skor'], color='#008CBA')
             
             ax_imp.set_xlabel('Skor Importance (0 - 1)')
             ax_imp.set_xlim(0, df_imp['Skor'].max() + 0.15) 
