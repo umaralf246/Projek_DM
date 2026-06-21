@@ -123,7 +123,9 @@ with tab1:
             fig_imp.patch.set_alpha(0.0)
             ax_imp.patch.set_alpha(0.0)
             
-            bars = ax_imp.barh(df_imp['Polutan'], df_imp['Skor'], color='#008CBA')
+            colors = ['#e74c3c' if val == df_imp['Skor'].max() else '#5a6268' for val in df_imp['Skor']]
+            
+            bars = ax_imp.barh(df_imp['Polutan'], df_imp['Skor'], color=colors)
             
             ax_imp.set_xlabel('Skor Importance (0 - 1)')
             ax_imp.set_xlim(0, df_imp['Skor'].max() + 0.15) 
@@ -237,7 +239,7 @@ with tab2:
         'Batas Maksimal Sehat': [50.0, 50.0, 50.0, 50.0, 50.0, 50.0]
     }, index=['PM10', 'PM2.5', 'SO2', 'CO', 'O3', 'NO2'])
 
-    st.bar_chart(data_grafik)
+    st.bar_chart(data_grafik['Nilai Input'], color="#008CBA")
 
     st.divider()
 
